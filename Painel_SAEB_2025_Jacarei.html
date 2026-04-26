@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel SAEB 2025 — Rede Municipal de Jacareí</title>
+<style>
+  /* ── RESET & BASE ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+    background:linear-gradient(160deg,#1a2f5e 0%,#1e5c3a 100%);min-height:100vh;
+    color: #ffffff;
+    font-size: 13px;
+  }
+
+  /* ── TABS ─────────────────────────────────────────────── */
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    background: #14254b;
+    padding: 10px 10px 0 10px;
+    border-bottom: 3px solid #A8D5A2;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-btn {
+    padding: 8px 14px;
+    background: #14254b;
+    color: #ffffff;
+    border: 1px solid #14254b;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { background: #14254b; color: #fff; }
+  .tab-btn.active {
+    background: #14254b;
+    color: #F5C518;
+    border-color: #A8D5A2;
+    border-bottom: 3px solid #14254b;
+    margin-bottom: -3px;
+  }
+  .tab-panel { display: none; padding: 24px; }
+  .tab-panel.active { display: block; }
+
+  /* ── SEÇÕES INTERNAS ──────────────────────────────────── */
+  .section-title {
+    background: #14254b;
+    color: #F5C518;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-left: 5px solid #A8D5A2;
+    margin: 28px 0 14px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  /* ── TABELAS ──────────────────────────────────────────── */
+  .tbl-wrap { overflow-x: auto; margin-bottom: 18px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  thead th {
+    background: #A8D5A2;
+    color: #14254b;
+    font-weight: 700;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #14254b;
+    font-size: 12px;
+  }
+  tbody tr:nth-child(even) { background: #14254b; }
+  tbody tr:nth-child(odd)  { background: #14254b; }
+  tbody tr:hover { background: #14254b; }
+  tbody td {
+    padding: 8px 8px;
+    border: 1px solid #14254b;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+  }
+  tbody td.txt-left { text-align: left; }
+  tbody td.nota { color: #F5C518; font-weight: 700; font-size: 13px; }
+  tbody td.rank { color: #A8D5A2; font-weight: 700; }
+  .linha-media-rede td {
+    background: #14254b !important;
+    color: #F5C518 !important;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  /* ── PASTÉIS SEMAFÓRICOS ──────────────────────────────── */
+  .abaixo  { background: #FFADAD !important; color: #14254b !important; font-weight: 700; }
+  .basico  { background: #FFD6A5 !important; color: #14254b !important; font-weight: 700; }
+  .adequado{ background: #CAFFBF !important; color: #14254b !important; font-weight: 700; }
+  .avancado{ background: #A8D5A2 !important; color: #14254b !important; font-weight: 700; }
+
+  /* ── CARDS ────────────────────────────────────────────── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .card {
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+    border: 2px solid #A8D5A2;
+  }
+  .card-label { font-size: 11px; color: #ffffff; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+  .card-value { font-size: 28px; font-weight: 700; color: #F5C518; }
+  .card-sub   { font-size: 11px; color: #A8D5A2; margin-top: 4px; font-style: italic; }
+  .card-bg-blue  { background: #14254b; }
+  .card-bg-green { background: #18492e; }
+  .card-bg-amber { background: #4a3000; }
+  .card-bg-slate { background: #14254b; }
+
+  /* ── TEXTO ANALÍTICO ──────────────────────────────────── */
+  .analytics-box {
+    background: #14254b;
+    border-left: 4px solid #A8D5A2;
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #e8e8e8;
+    margin-bottom: 18px;
+  }
+  .analytics-box p { margin-bottom: 10px; }
+  .analytics-box p:last-child { margin-bottom: 0; }
+  .analytics-box strong { color: #F5C518; }
+
+  /* ── CAPA ─────────────────────────────────────────────── */
+  .capa-header {
+    background: linear-gradient(135deg, #14254b 0%, #14254b 100%);
+    border: 3px solid #A8D5A2;
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .capa-header-text { flex: 1; }
+  .capa-prefeitura { font-size: 14px; color: #A8D5A2; font-weight: 700; margin-bottom: 4px; }
+  .capa-sme        { font-size: 13px; color: #ffffff; margin-bottom: 2px; }
+  .capa-setor      { font-size: 12px; color: #ffffff; font-style: italic; margin-bottom: 20px; }
+  .capa-titulo     { font-size: 26px; font-weight: 700; color: #F5C518; line-height: 1.2; margin-bottom: 8px; }
+  .capa-subtitulo  { font-size: 13px; color: #ffffff; }
+  .capa-divider    { height: 3px; background: #A8D5A2; border-radius: 2px; margin: 20px 0; }
+  .logo-placeholder {
+    width: 110px; height: 110px; min-width: 110px;
+    border: 2px solid #A8D5A2;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-size: 10px; color: #A8D5A2; font-weight: 700;
+    background: #14254b;
+    line-height: 1.3;
+  }
+
+  /* ── LEGENDA ──────────────────────────────────────────── */
+  .legenda-row {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;
+  }
+  .legenda-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600;
+  }
+  .legenda-box {
+    width: 26px; height: 20px; border-radius: 4px; flex-shrink: 0;
+  }
+  .legenda-item span { color: #ffffff; font-weight: 400; font-style: italic; font-size: 11px; }
+
+  /* ── BARRA HORIZONTAL (rankings) ──────────────────────── */
+  .bar-wrap { position: relative; }
+  .bar-bg {
+    background: #14254b;
+    border-radius: 4px;
+    height: 18px;
+    width: 100%;
+    position: relative;
+    overflow: visible;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #14254b;
+    white-space: nowrap;
+    overflow: visible;
+  }
+  .bar-media-line {
+    position: absolute;
+    top: -3px; bottom: -3px;
+    width: 2px;
+    background: #F5C518;
+    z-index: 10;
+  }
+  .bar-media-label {
+    position: absolute;
+    top: -16px;
+    font-size: 9px;
+    color: #F5C518;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    font-weight: 700;
+  }
+
+  /* ── DISTRIBUIÇÃO POR NÍVEIS ──────────────────────────── */
+  .nivel-bar-wrap {
+    display: flex;
+    height: 22px;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 260px;
+  }
+  .nivel-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #14254b;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  .nivel-seg:hover { opacity: 0.8; }
+  .n0 { background: #c0392b; color: #fff; }
+  .n1 { background: #e74c3c; color: #fff; }
+  .n2 { background: #e67e22; color: #fff; }
+  .n3 { background: #FFADAD; }
+  .n4 { background: #FFD6A5; }
+  .n5 { background: #CAFFBF; }
+  .n6 { background: #7be87b; }
+  .n7 { background: #A8D5A2; }
+  .n8 { background: #14254b; color: #fff; }
+  .n9 { background: #14254b; color: #fff; }
+
+  /* ── ESCALA DE NÍVEIS ─────────────────────────────────── */
+  .escala-card {
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    border: 1px solid #14254b;
+  }
+  .escala-card-header {
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .escala-card-header .nivel-badge {
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    min-width: 120px;
+    text-align: center;
+  }
+  .escala-card-body {
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #14254b;
+  }
+  .escala-card-body ul { padding-left: 18px; }
+  .escala-card-body li { margin-bottom: 3px; }
+
+  /* ── BLOCOS CONCLUSÃO ─────────────────────────────────── */
+  .conclusao-bloco {
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid #A8D5A2;
+  }
+  .conclusao-bloco-header {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #F5C518;
+  }
+  .conclusao-bloco-body {
+    padding: 18px 20px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #e8e8e8;
+  }
+  .conclusao-bloco-body p { margin-bottom: 12px; }
+  .conclusao-bloco-body p:last-child { margin-bottom: 0; }
+  .conclusao-bloco-body strong { color: #F5C518; }
+  .conclusao-bloco-body ul { padding-left: 20px; margin-bottom: 12px; }
+  .conclusao-bloco-body li { margin-bottom: 5px; }
+
+  /* ── RODAPÉ ───────────────────────────────────────────── */
+  .rodape {
+    background: #14254b;
+    border-top: 2px solid #A8D5A2;
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 11px;
+    color: #A8D5A2;
+    font-style: italic;
+    margin-top: 32px;
+  }
+
+  /* ── STAT TABLE ───────────────────────────────────────── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat-item {
+    background: #14254b;
+    border: 1px solid #14254b;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .stat-item-label { font-size: 11px; color: #A8D5A2; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-item-vals  { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stat-val { }
+  .stat-val-label { font-size: 10px; color: #ffffff; }
+  .stat-val-num   { font-size: 18px; font-weight: 700; color: #F5C518; }
+
+  /* ── PRINT ────────────────────────────────────────────── */
+  @media print {
+    .tab-bar { display: none; }
+    .tab-panel { display: block !important; page-break-before: always; }
+    .tab-panel:first-child { page-break-before: avoid; }
+  }
+
+.capa-logo-svg{width:80px;height:80px;min-width:80px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.capa-logo-svg svg{width:72px;height:72px;}
+.capa-text{display:flex;flex-direction:column;gap:2px;}
+.capa-div{height:2px;background:#A8D5A2;border-radius:2px;margin:8px 0;}
+.capa-prefeitura{font-size:14px;color:#A8D5A2;font-weight:700;}
+.capa-sme{font-size:13px;color:#ffffff;}
+.capa-setor{font-size:11.5px;color:#ffffff;font-style:italic;}
+.capa-titulo{font-size:22px;font-weight:700;color:#F5C518;line-height:1.2;margin-top:8px;margin-bottom:4px;}
+.capa-sub{font-size:11.5px;color:#ffffff;}
+.capa-header{background:rgba(255,255,255,0.07);border:2px solid #A8D5A2;border-radius:14px;padding:22px 28px;margin-bottom:26px;display:flex;align-items:center;gap:24px;}
+
+
+.btn-voltar{
+  position:fixed;top:14px;right:18px;z-index:9999;
+  background:#14254b;border:2px solid #A8D5A2;border-radius:8px;
+  color:#A8D5A2;font-size:11.5px;font-weight:700;
+  padding:7px 14px;cursor:pointer;text-decoration:none;
+  font-family:'Calibri','Segoe UI',Arial,sans-serif;
+  letter-spacing:.4px;transition:background .2s,color .2s,border-color .2s;
+}
+.btn-voltar:hover{background:#A8D5A2;color:#14254b;border-color:#F5C518;}
+</style>
+</head>
+<body><a class="btn-voltar" href="Portal_Paineis_SME_Jacarei.html">&#8592; Portal</a>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('capa')">Apresentação</button>
+  <button class="tab-btn" onclick="showTab('relatorio')">Relatório Geral</button>
+  <button class="tab-btn" onclick="showTab('ranking-geral')">Ranking Geral</button>
+  <button class="tab-btn" onclick="showTab('ranking-lp')">Ranking LP</button>
+  <button class="tab-btn" onclick="showTab('ranking-mat')">Ranking MAT</button>
+  <button class="tab-btn" onclick="showTab('escala')">Escala de Níveis</button>
+  <button class="tab-btn" onclick="showTab('dist-lp')">Dist. % LP</button>
+  <button class="tab-btn" onclick="showTab('dist-mat')">Dist. % MAT</button>
+  <button class="tab-btn" onclick="showTab('niveis')">Nível por Escola</button>
+  <button class="tab-btn" onclick="showTab('conclusao')">Conclusão Explícita</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 1 — APRESENTAÇÃO                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="capa" class="tab-panel active">
+
+  <div class="capa-header"><div class="capa-logo-svg"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><line x1="12" y1="10" x2="12" y2="70" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity=".4"/><line x1="12" y1="70" x2="72" y2="70" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity=".4"/><rect x="18" y="52" width="13" height="18" rx="3" fill="#A8D5A2"/><rect x="36" y="38" width="13" height="32" rx="3" fill="#F5C518"/><rect x="54" y="24" width="13" height="46" rx="3" fill="#88c9ff"/><polygon points="60,10 62,17 69,17 64,21 66,28 60,24 54,28 56,21 51,17 58,17" fill="#F5C518"/></svg></div>
+  <div class="capa-text">
+    <div class="capa-prefeitura">Prefeitura Municipal de Jacareí</div>
+    <div class="capa-sme">Secretaria de Educação — SME</div>
+    <div class="capa-setor">Avaliação e Análise dos Resultados da Educação</div>
+    <div class="capa-div"></div>
+    <div class="capa-titulo">PAINEL DE RESULTADOS — SAEB 2025</div>
+    <div class="capa-sub">Rede Municipal de Jacareí — SP &nbsp;|&nbsp; 5º Ano do Ensino Fundamental &nbsp;|&nbsp; Resultado Preliminar</div>
+  </div>
+</div>
+
+  <div class="section-title">CONTEXTO DA AVALIAÇÃO</div>
+  <div class="analytics-box">
+    <p><strong>Avaliação:</strong> SAEB 2025 — Sistema de Avaliação da Educação Básica</p>
+    <p><strong>Etapa avaliada:</strong> 5º Ano do Ensino Fundamental</p>
+    <p><strong>Componentes curriculares:</strong> Língua Portuguesa e Matemática</p>
+    <p><strong>Escolas participantes:</strong> 27 escolas com resultados válidos</p>
+    <p><strong>Estudantes presentes:</strong> 2.304 de 2.504 matriculados</p>
+    <p><strong>Referência de escala:</strong> Escala SAEB — INEP/MEC (0 a 500 pontos)</p>
+    <p><strong>Padrões de desempenho:</strong> Abaixo do Básico &nbsp;|&nbsp; Básico &nbsp;|&nbsp; Adequado &nbsp;|&nbsp; Avançado</p>
+    <p><strong>Observação:</strong> A EMEF Hugo Del Monaco foi excluída da análise por ausência de resultados válidos no período de referência.</p>
+  </div>
+
+  <div class="section-title">INDICADORES GERAIS DA REDE</div>
+  <div class="cards-grid">
+    <div class="card card-bg-amber">
+      <div class="card-label">Média LP da Rede</div>
+      <div class="card-value">219,91</div>
+      <div class="card-sub">Básico — Nível 4</div>
+    </div>
+    <div class="card card-bg-green">
+      <div class="card-label">Média MAT da Rede</div>
+      <div class="card-value">236,92</div>
+      <div class="card-sub">Adequado — Nível 5</div>
+    </div>
+    <div class="card card-bg-green">
+      <div class="card-label">Média Geral da Rede</div>
+      <div class="card-value">228,42</div>
+      <div class="card-sub">Adequado — Nível 5</div>
+    </div>
+    <div class="card card-bg-blue">
+      <div class="card-label">Participação Média</div>
+      <div class="card-value">92,2%</div>
+      <div class="card-sub">2.304 presentes / 2.504 matr.</div>
+    </div>
+    <div class="card card-bg-slate">
+      <div class="card-label">Escolas no Adequado LP</div>
+      <div class="card-value">9 / 27</div>
+      <div class="card-sub">33,3% das unidades</div>
+    </div>
+    <div class="card card-bg-slate">
+      <div class="card-label">Escolas no Adequado MAT</div>
+      <div class="card-value">22 / 27</div>
+      <div class="card-sub">81,5% das unidades</div>
+    </div>
+  </div>
+
+  <div class="section-title">LEGENDA — CLASSIFICAÇÃO POR PADRÃO DE DESEMPENHO</div>
+  <div class="legenda-row">
+    <div class="legenda-item">
+      <div class="legenda-box" style="background:#FFADAD;"></div>
+      <div><strong style="color:#FFADAD;">Abaixo do Básico</strong><br><span>Proficiência abaixo de 200 | Níveis 0 a 3</span></div>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-box" style="background:#FFD6A5;"></div>
+      <div><strong style="color:#FFD6A5;">Básico</strong><br><span>Proficiência de 200 a 224 | Nível 4</span></div>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-box" style="background:#CAFFBF;"></div>
+      <div><strong style="color:#CAFFBF;">Adequado</strong><br><span>Proficiência de 225 a 274 | Níveis 5 e 6</span></div>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-box" style="background:#A8D5A2;"></div>
+      <div><strong style="color:#A8D5A2;">Avançado</strong><br><span>Proficiência de 275 e acima | Níveis 7+ (LP) / 7+ (MAT)</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">ESTRUTURA DO PAINEL</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Aba</th><th style="text-align:left;">Conteúdo</th></tr></thead>
+      <tbody>
+        <tr><td class="rank">Apresentação</td><td class="txt-left">Contexto da avaliação, indicadores gerais e legenda</td></tr>
+        <tr><td class="rank">Relatório Geral</td><td class="txt-left">Análise estatística descritiva, distribuição por padrão e comparativo LP × MAT</td></tr>
+        <tr><td class="rank">Ranking Geral</td><td class="txt-left">Ordenação das 27 escolas pela média entre LP e Matemática</td></tr>
+        <tr><td class="rank">Ranking LP</td><td class="txt-left">Ordenação das 27 escolas pela nota de Língua Portuguesa</td></tr>
+        <tr><td class="rank">Ranking MAT</td><td class="txt-left">Ordenação das 27 escolas pela nota de Matemática</td></tr>
+        <tr><td class="rank">Escala de Níveis</td><td class="txt-left">Descritores oficiais SAEB por nível de proficiência — LP e MAT</td></tr>
+        <tr><td class="rank">Dist. % LP</td><td class="txt-left">Distribuição percentual dos estudantes por nível de proficiência em LP</td></tr>
+        <tr><td class="rank">Dist. % MAT</td><td class="txt-left">Distribuição percentual dos estudantes por nível de proficiência em Matemática</td></tr>
+        <tr><td class="rank">Nível por Escola</td><td class="txt-left">Classificação de cada escola — Padrão e Nível numérico em LP e MAT</td></tr>
+        <tr><td class="rank">Conclusão Explícita</td><td class="txt-left">Síntese analítica com situação geral, fragilidades, potencialidades e alinhamento</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 2 — RELATÓRIO GERAL                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="relatorio" class="tab-panel">
+
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">RELATÓRIO GERAL DO DESEMPENHO DA REDE — SAEB 2025</div>
+      <div class="capa-subtitulo">Rede Municipal &nbsp;|&nbsp; 5º Ano EF &nbsp;|&nbsp; 27 Escolas &nbsp;|&nbsp; Resultado Preliminar</div>
+    </div>
+  </div>
+
+  <!-- 1. Estatística descritiva -->
+  <div class="section-title">1. ANÁLISE ESTATÍSTICA DESCRITIVA — PROFICIÊNCIAS DA REDE</div>
+
+  <div class="stat-grid">
+    <div class="stat-item">
+      <div class="stat-item-label">Língua Portuguesa</div>
+      <div class="stat-item-vals">
+        <div class="stat-val"><div class="stat-val-label">Média</div><div class="stat-val-num">219,91</div></div>
+        <div class="stat-val"><div class="stat-val-label">Mediana</div><div class="stat-val-num">221,15</div></div>
+        <div class="stat-val"><div class="stat-val-label">Desv. Padrão</div><div class="stat-val-num">12,00</div></div>
+        <div class="stat-val"><div class="stat-val-label">Mín.</div><div class="stat-val-num">188,74</div></div>
+        <div class="stat-val"><div class="stat-val-label">Máx.</div><div class="stat-val-num">238,44</div></div>
+        <div class="stat-val"><div class="stat-val-label">Amplitude</div><div class="stat-val-num">49,70</div></div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-item-label">Matemática</div>
+      <div class="stat-item-vals">
+        <div class="stat-val"><div class="stat-val-label">Média</div><div class="stat-val-num">236,92</div></div>
+        <div class="stat-val"><div class="stat-val-label">Mediana</div><div class="stat-val-num">235,96</div></div>
+        <div class="stat-val"><div class="stat-val-label">Desv. Padrão</div><div class="stat-val-num">12,83</div></div>
+        <div class="stat-val"><div class="stat-val-label">Mín.</div><div class="stat-val-num">217,43</div></div>
+        <div class="stat-val"><div class="stat-val-label">Máx.</div><div class="stat-val-num">263,71</div></div>
+        <div class="stat-val"><div class="stat-val-label">Amplitude</div><div class="stat-val-num">46,28</div></div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-item-label">Média Geral (LP + MAT)</div>
+      <div class="stat-item-vals">
+        <div class="stat-val"><div class="stat-val-label">Média</div><div class="stat-val-num">228,42</div></div>
+        <div class="stat-val"><div class="stat-val-label">Mediana</div><div class="stat-val-num">227,83</div></div>
+        <div class="stat-val"><div class="stat-val-label">Desv. Padrão</div><div class="stat-val-num">12,01</div></div>
+        <div class="stat-val"><div class="stat-val-label">Mín.</div><div class="stat-val-num">203,33</div></div>
+        <div class="stat-val"><div class="stat-val-label">Máx.</div><div class="stat-val-num">251,08</div></div>
+        <div class="stat-val"><div class="stat-val-label">Amplitude</div><div class="stat-val-num">47,74</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="analytics-box">
+    <p>A rede municipal de Jacareí registrou, no SAEB 2025, média de <strong>219,91 pontos em Língua Portuguesa</strong> — classificada no padrão <strong>Básico (Nível 4)</strong> — e <strong>236,92 pontos em Matemática</strong> — classificada no padrão <strong>Adequado (Nível 5)</strong> da escala oficial do SAEB para o 5º ano do Ensino Fundamental. A média geral da rede, calculada pela média aritmética entre os dois componentes, foi de <strong>228,42 pontos</strong>, situando-se também no padrão Adequado.</p>
+    <p>O desvio padrão de <strong>12,00 pontos em LP</strong> e <strong>12,83 pontos em Matemática</strong> evidencia dispersão moderada entre as escolas da rede, com amplitudes de 49,70 e 46,28 pontos entre os extremos, respectivamente. Essa variabilidade, embora não extrema, indica que existem diferenças relevantes de desempenho entre as unidades escolares, demandando atenção analítica diferenciada por escola.</p>
+    <p>A mediana em LP (<strong>221,15</strong>) é próxima à média (<strong>219,91</strong>), indicando distribuição razoavelmente simétrica entre as escolas. Em Matemática, a mediana (<strong>235,96</strong>) também se aproxima da média (<strong>236,92</strong>), configurando padrão semelhante. O maior resultado em LP foi de <strong>238,44 pontos</strong> (EMEF Claudia Maria Gaspar Queiroz do Prado) e o menor foi de <strong>188,74 pontos</strong> (CEI Andre Franco Montoro). Em Matemática, o maior valor alcançado foi <strong>263,71 pontos</strong> (EMEF Claudia Maria Gaspar Queiroz do Prado) e o menor foi <strong>217,43 pontos</strong> (EMEIF Prof Adelia Pereira Braz Rossi).</p>
+  </div>
+
+  <!-- 2. Distribuição por padrão -->
+  <div class="section-title">2. DISTRIBUIÇÃO DAS ESCOLAS POR PADRÃO DE DESEMPENHO</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Padrão de Desempenho</th>
+          <th>Intervalo (pontos)</th>
+          <th>LP — Escolas</th>
+          <th>LP — %</th>
+          <th>MAT — Escolas</th>
+          <th>MAT — %</th>
+          <th>Geral — Escolas</th>
+          <th>Geral — %</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="abaixo">Abaixo do Básico</td>
+          <td>abaixo de 200</td>
+          <td class="abaixo">1</td><td class="abaixo">3,7%</td>
+          <td class="abaixo">0</td><td class="abaixo">0,0%</td>
+          <td class="abaixo">0</td><td class="abaixo">0,0%</td>
+        </tr>
+        <tr>
+          <td class="basico">Básico</td>
+          <td>200 a 224</td>
+          <td class="basico">17</td><td class="basico">63,0%</td>
+          <td class="basico">5</td><td class="basico">18,5%</td>
+          <td class="basico">12</td><td class="basico">44,4%</td>
+        </tr>
+        <tr>
+          <td class="adequado">Adequado</td>
+          <td>225 a 274</td>
+          <td class="adequado">9</td><td class="adequado">33,3%</td>
+          <td class="adequado">22</td><td class="adequado">81,5%</td>
+          <td class="adequado">15</td><td class="adequado">55,6%</td>
+        </tr>
+        <tr>
+          <td class="avancado">Avançado</td>
+          <td>275 e acima</td>
+          <td class="avancado">0</td><td class="avancado">0,0%</td>
+          <td class="avancado">0</td><td class="avancado">0,0%</td>
+          <td class="avancado">0</td><td class="avancado">0,0%</td>
+        </tr>
+        <tr class="linha-media-rede">
+          <td><strong>Total</strong></td><td>—</td>
+          <td>27</td><td>100%</td>
+          <td>27</td><td>100%</td>
+          <td>27</td><td>100%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="analytics-box">
+    <p>Em <strong>Língua Portuguesa</strong>, a maior concentração de escolas recai sobre o padrão <strong>Básico</strong>, com 17 unidades (63,0%). Apenas 9 escolas (33,3%) atingiram o padrão <strong>Adequado</strong>, e uma única escola — o <strong>CEI Andre Franco Montoro</strong> — registrou média abaixo de 200 pontos, situando-se no padrão <strong>Abaixo do Básico</strong>. Nenhuma escola da rede alcançou o padrão Avançado em LP.</p>
+    <p>Em <strong>Matemática</strong>, o cenário é consideravelmente mais favorável: <strong>22 escolas (81,5%) situam-se no padrão Adequado</strong>, e apenas 5 unidades (18,5%) ainda se encontram no padrão Básico. Nenhuma escola registrou média abaixo de 200 pontos em MAT, e tampouco foi registrado resultado no padrão Avançado.</p>
+    <p>O contraste entre os dois componentes é marcante: enquanto em Matemática mais de quatro quintos das escolas atingem o patamar esperado (Adequado), em Língua Portuguesa essa proporção é de apenas um terço, revelando que o componente de leitura e escrita demanda atenção prioritária da rede.</p>
+  </div>
+
+  <!-- 3. Comparativo LP x MAT -->
+  <div class="section-title">3. ANÁLISE COMPARATIVA — LÍNGUA PORTUGUESA E MATEMÁTICA POR ESCOLA</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th style="text-align:left;">Escola</th>
+          <th>Nota LP</th>
+          <th>Nota MAT</th>
+          <th>Diferença (MAT − LP)</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-comp"></tbody>
+    </table>
+  </div>
+  <div class="analytics-box">
+    <p>Todas as 27 escolas da rede apresentaram desempenho superior em Matemática em relação à Língua Portuguesa — sem exceção. A diferença média entre os dois componentes no conjunto da rede é de <strong>17,01 pontos</strong> favorável à Matemática. A maior distância foi registrada no <strong>CEI Andre Franco Montoro</strong> (+29,18 pontos), e a menor na <strong>EMEF Prof Jose Eboli de Lima</strong> (+4,85 pontos). Esse padrão consistente e universal em todas as unidades indica que o desempenho em LP é sistematicamente mais frágil do que em Matemática para o 5º ano em toda a rede municipal.</p>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 3 — RANKING GERAL                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="ranking-geral" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">RANKING GERAL DAS ESCOLAS — MÉDIA LP + MATEMÁTICA</div>
+      <div class="capa-subtitulo">A linha amarela indica a média da rede (228,42). Escolas à direita estão acima da média.</div>
+    </div>
+  </div>
+
+  <div class="section-title">RANKING GERAL — MÉDIA LP + MATEMÁTICA (27 Escolas)</div>
+  <div class="legenda-row">
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFADAD;"></div><div><strong style="color:#FFADAD;">Abaixo do Básico</strong> <span>(&lt; 200)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFD6A5;"></div><div><strong style="color:#FFD6A5;">Básico</strong> <span>(200–224)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#CAFFBF;"></div><div><strong style="color:#CAFFBF;">Adequado</strong> <span>(225–274)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#A8D5A2;"></div><div><strong style="color:#A8D5A2;">Avançado</strong> <span>(≥ 275)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#F5C518; width:4px; height:20px;"></div><div><strong style="color:#F5C518;">Linha amarela</strong> <span>= média da rede (228,42)</span></div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Pos.</th>
+          <th style="text-align:left;">Escola</th>
+          <th>Matr.</th>
+          <th>Pres.</th>
+          <th>Part. %</th>
+          <th>Nota LP</th>
+          <th>Nota MAT</th>
+          <th>Média Geral</th>
+          <th>Padrão (Média Geral)</th>
+          <th style="min-width:280px;">Barra</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-geral"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 4 — RANKING LP                                         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="ranking-lp" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">RANKING — LÍNGUA PORTUGUESA</div>
+      <div class="capa-subtitulo">A linha amarela indica a média de LP da rede (219,91). Escolas à direita estão acima da média.</div>
+    </div>
+  </div>
+  <div class="section-title">RANKING — LÍNGUA PORTUGUESA (27 Escolas)</div>
+  <div class="legenda-row">
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFADAD;"></div><div><strong style="color:#FFADAD;">Abaixo do Básico</strong> <span>(&lt; 200)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFD6A5;"></div><div><strong style="color:#FFD6A5;">Básico</strong> <span>(200–224)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#CAFFBF;"></div><div><strong style="color:#CAFFBF;">Adequado</strong> <span>(225–274)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#F5C518; width:4px; height:20px;"></div><div><strong style="color:#F5C518;">Linha amarela</strong> <span>= média LP da rede (219,91)</span></div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Pos.</th>
+          <th style="text-align:left;">Escola</th>
+          <th>Matr.</th>
+          <th>Pres.</th>
+          <th>Part. %</th>
+          <th>Nota LP</th>
+          <th>Padrão LP</th>
+          <th style="min-width:280px;">Barra</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-lp"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 5 — RANKING MAT                                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="ranking-mat" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">RANKING — MATEMÁTICA</div>
+      <div class="capa-subtitulo">A linha amarela indica a média de MAT da rede (236,92). Escolas à direita estão acima da média.</div>
+    </div>
+  </div>
+  <div class="section-title">RANKING — MATEMÁTICA (27 Escolas)</div>
+  <div class="legenda-row">
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFD6A5;"></div><div><strong style="color:#FFD6A5;">Básico</strong> <span>(200–224)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#CAFFBF;"></div><div><strong style="color:#CAFFBF;">Adequado</strong> <span>(225–274)</span></div></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#F5C518; width:4px; height:20px;"></div><div><strong style="color:#F5C518;">Linha amarela</strong> <span>= média MAT da rede (236,92)</span></div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Pos.</th>
+          <th style="text-align:left;">Escola</th>
+          <th>Matr.</th>
+          <th>Pres.</th>
+          <th>Part. %</th>
+          <th>Nota MAT</th>
+          <th>Padrão MAT</th>
+          <th style="min-width:280px;">Barra</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-mat"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 6 — ESCALA DE NÍVEIS                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="escala" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">ESCALA OFICIAL DE NÍVEIS DE PROFICIÊNCIA — SAEB 2025</div>
+      <div class="capa-subtitulo">5º Ano do Ensino Fundamental &nbsp;|&nbsp; Fonte: INEP/MEC — Escalas de Proficiência do SAEB (2020)</div>
+    </div>
+  </div>
+
+  <div class="section-title">LÍNGUA PORTUGUESA — 5º ANO DO ENSINO FUNDAMENTAL</div>
+
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 0 — &lt; 125</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo">O SAEB não utilizou itens que avaliam as habilidades deste nível. Os estudantes localizados abaixo do nível 125 requerem atenção especial, pois não demonstram habilidades muito elementares.</div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 1 — 125 a 149</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo"><ul><li>Localizar informações explícitas em textos narrativos curtos, informativos e anúncios.</li><li>Identificar o tema de um texto.</li><li>Localizar elementos como o personagem principal.</li><li>Estabelecer relação entre partes do texto: personagem e ação; ação e tempo; ação e lugar.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 2 — 150 a 174</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo"><ul><li>Localizar informações explícitas em contos.</li><li>Identificar o assunto principal e a personagem principal em reportagem e em fábulas.</li><li>Reconhecer a finalidade de receitas, manuais e regulamentos.</li><li>Inferir características de personagens em fábulas.</li><li>Interpretar linguagem verbal e não verbal em tirinhas.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 3 — 175 a 199</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo"><ul><li>Localizar informação explícita em contos e reportagens.</li><li>Localizar informação explícita em propagandas com ou sem apoio de recursos gráficos.</li><li>Reconhecer relação de causa e consequência em poemas, contos e tirinhas.</li><li>Inferir o sentido de palavra, o sentido de expressão ou o assunto em cartas, contos, tirinhas e histórias em quadrinhos com o apoio de linguagem verbal e não verbal.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header basico"><span class="nivel-badge">Nível 4 — 200 a 224</span> Básico</div>
+    <div class="escala-card-body basico"><ul><li>Identificar informação explícita em sinopses e receitas culinárias.</li><li>Identificar assunto principal e personagem em contos e letras de música.</li><li>Identificar formas de representação de medida de tempo em reportagens.</li><li>Identificar assuntos comuns a duas reportagens.</li><li>Identificar o efeito de humor em piadas.</li><li>Reconhecer sentido de expressão, elementos da narrativa e opinião em reportagens, contos e poemas.</li><li>Reconhecer relação de causa e consequência e relação entre pronomes e seus referentes em fábulas, poemas, contos e tirinhas.</li><li>Inferir sentido decorrente da utilização de sinais de pontuação e sentido de expressões em poemas, fábulas e contos.</li><li>Inferir efeito de humor em tirinhas e histórias em quadrinhos.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header adequado"><span class="nivel-badge">Nível 5 — 225 a 249</span> Adequado</div>
+    <div class="escala-card-body adequado"><ul><li>Identificar assunto e opinião em reportagens e contos.</li><li>Identificar assunto comum a cartas e poemas.</li><li>Identificar informação explícita em letras de música e contos.</li><li>Reconhecer assunto em poemas e tirinhas.</li><li>Reconhecer sentido de conjunções e de locuções adverbiais em verbetes, lendas e contos.</li><li>Reconhecer finalidade de reportagens e cartazes.</li><li>Inferir elementos da narrativa em fábulas, contos e cartas.</li><li>Inferir informação em poemas, reportagens e cartas.</li><li>Diferenciar opinião de fato em reportagens.</li><li>Interpretar efeito de humor e sentido de palavra em piadas e tirinhas.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header adequado"><span class="nivel-badge">Nível 6 — 250 a 274</span> Adequado</div>
+    <div class="escala-card-body adequado"><ul><li>Identificar opinião e informação explícita em fábulas, contos, crônicas e reportagens.</li><li>Reconhecer a finalidade de verbetes, fábulas, charges e reportagens.</li><li>Reconhecer relação de causa e consequência e relação entre pronomes e seus referentes em poemas, fábulas e contos.</li><li>Inferir assunto principal e sentido de expressão em poemas, fábulas, contos, crônicas, reportagens e tirinhas.</li><li>Inferir informação em contos e reportagens.</li><li>Inferir efeito de humor e moral em piadas e fábulas.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 7 — 275 a 299</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li>Identificar assunto principal e informações explícitas em poemas, fábulas e letras de música.</li><li>Identificar opinião em poemas e crônicas.</li><li>Reconhecer o gênero textual a partir da comparação entre textos e assunto comum a duas reportagens.</li><li>Reconhecer elementos da narrativa em fábulas.</li><li>Inferir informação e efeito de sentido decorrente do uso de sinais gráficos em reportagens e em letras de música.</li><li>Interpretar efeito de humor em piadas e contos.</li><li>Interpretar linguagem verbal e não verbal em histórias em quadrinhos.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 8 — 300 a 324</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li>Identificar assunto principal e opinião em contos e cartas do leitor.</li><li>Reconhecer sentido de locução adverbial e elementos da narrativa em fábulas e contos.</li><li>Reconhecer relação de causa e consequência e relação entre pronomes e seus referentes em fábulas e reportagens.</li><li>Reconhecer assunto comum entre textos de gêneros diferentes.</li><li>Inferir informações e efeito de sentido decorrente do uso de pontuação em fábulas e piadas.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 9 — 325 e acima</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li>Identificar opinião em fábulas e reconhecer sentido de advérbios em cartas do leitor.</li></ul></div>
+  </div>
+
+  <div class="section-title">MATEMÁTICA — 5º ANO DO ENSINO FUNDAMENTAL</div>
+
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 0 — &lt; 125</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo">O SAEB não utilizou itens que avaliam as habilidades deste nível. Os estudantes localizados abaixo do nível 125 requerem atenção especial, pois não demonstram habilidades muito elementares.</div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 1 — 125 a 149</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo"><ul><li><strong>Grandezas e Medidas:</strong> Determinar a área de figuras desenhadas em malhas quadriculadas por meio de contagem.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 2 — 150 a 174</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo"><ul><li><strong>Números e Operações:</strong> Resolver problemas do cotidiano envolvendo adição de pequenas quantias de dinheiro.</li><li><strong>Tratamento de Informações:</strong> Localizar informações, relativas ao maior ou menor elemento, em tabelas ou gráficos.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header abaixo"><span class="nivel-badge">Nível 3 — 175 a 199</span> Abaixo do Básico</div>
+    <div class="escala-card-body abaixo"><ul><li><strong>Espaço e Forma:</strong> Localizar um ponto ou objeto em malha quadriculada. Reconhecer polígonos com maior número de ângulos. Associar figuras geométricas elementares a seus nomes.</li><li><strong>Grandezas e Medidas:</strong> Converter quantias em moedas. Determinar horário final de evento a partir de horário de início e intervalo em horas inteiras.</li><li><strong>Números e Operações:</strong> Associar a fração ¼ a representações gráficas. Determinar o resultado da subtração de números decimais no contexto monetário.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header basico"><span class="nivel-badge">Nível 4 — 200 a 224</span> Básico</div>
+    <div class="escala-card-body basico"><ul><li><strong>Espaço e Forma:</strong> Reconhecer retângulos em meio a outros quadriláteros. Reconhecer a planificação de uma pirâmide.</li><li><strong>Grandezas e Medidas:</strong> Determinar total de quantia a partir de moedas de 25 e 50 centavos. Converter hora em minutos. Converter semanas em dias. Interpretar horas em relógios de ponteiros.</li><li><strong>Números e Operações:</strong> Determinar resultados de multiplicações e adições com valores monetários. Reconhecer princípio do valor posicional do Sistema de Numeração Decimal. Associar fração à relação parte-todo. Localizar números em reta numérica.</li><li><strong>Tratamento de Informações:</strong> Reconhecer maior valor em tabelas. Localizar dado em tabelas de dupla entrada.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header adequado"><span class="nivel-badge">Nível 5 — 225 a 249</span> Adequado</div>
+    <div class="escala-card-body adequado"><ul><li><strong>Espaço e Forma:</strong> Localizar ponto entre outros dois fixados. Reconhecer a planificação de um cubo.</li><li><strong>Grandezas e Medidas:</strong> Determinar área de terreno retangular em malha quadriculada. Converter hora inteira em minutos. Estimar altura de objeto com referência em régua graduada.</li><li><strong>Números e Operações:</strong> Determinar resultado de subtração com recursos à ordem superior entre números naturais. Determinar multiplicação de número inteiro por número decimal em contexto monetário. Resolver problemas no sistema monetário nacional. Reconhecer fração como relação parte-todo.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header adequado"><span class="nivel-badge">Nível 6 — 250 a 274</span> Adequado</div>
+    <div class="escala-card-body adequado"><ul><li><strong>Espaço e Forma:</strong> Reconhecer polígonos em mosaicos.</li><li><strong>Grandezas e Medidas:</strong> Determinar duração de evento a partir de horários em horas e minutos. Resolver problemas envolvendo intervalos de tempo em meses. Reconhecer m² como unidade de área.</li><li><strong>Números e Operações:</strong> Determinar diferença entre números racionais decimais. Determinar porcentagens simples (25%, 50%). Associar metade de um total a equivalentes em fração ou porcentagem. Reconhecer fração sem apoio de figuras. Resolver problemas envolvendo soma e subtração de valores monetários.</li><li><strong>Tratamento de Informações:</strong> Interpretar dados em tabela simples. Comparar dados em gráfico de colunas.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 7 — 275 a 299</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li><strong>Espaço e Forma:</strong> Interpretar movimentação de objeto com referencial diferente do seu. Reconhecer cubo a partir de sua planificação.</li><li><strong>Grandezas e Medidas:</strong> Determinar perímetro de retângulo em malha quadriculada. Converter toneladas para quilogramas. Resolver problemas com conversão de quilograma para grama e litro para mililitro. Resolver problemas de intervalos de tempo passando pela meia-noite.</li><li><strong>Números e Operações:</strong> Determinar 25% de número múltiplo de quatro. Resolver problemas com divisão exata ou multiplicação de números naturais.</li><li><strong>Tratamento de Informações:</strong> Interpretar dados em gráficos de setores.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 8 — 300 a 324</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li><strong>Espaço e Forma:</strong> Reconhecer linha paralela em mapa. Reconhecer objetos de forma esférica.</li><li><strong>Grandezas e Medidas:</strong> Determinar área de retângulo após modificação de dimensão. Determinar razão entre áreas de figuras. Converter medidas lineares de comprimento.</li><li><strong>Números e Operações:</strong> Resolver problemas com grandezas diretamente proporcionais requerendo mais de uma operação. Resolver problemas com divisão com resto. Associar fração ½ à forma decimal. Associar número natural de seis ordens à forma polinomial.</li><li><strong>Tratamento de Informações:</strong> Interpretar dados em gráfico de colunas duplas.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 9 — 325 a 349</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li><strong>Espaço e Forma:</strong> Reconhecer planificação de caixa cilíndrica.</li><li><strong>Grandezas e Medidas:</strong> Determinar perímetro de polígono não convexo. Resolver problemas de conversão entre unidades de tempo e comprimento.</li><li><strong>Números e Operações:</strong> Determinar o minuendo de uma subtração. Reconhecer frações equivalentes. Resolver problemas envolvendo multiplicação com significado de combinatória. Comparar números racionais com quantidades diferentes de casas decimais.</li><li><strong>Tratamento de Informações:</strong> Reconhecer gráfico de linhas com valores ao longo do tempo.</li></ul></div>
+  </div>
+  <div class="escala-card">
+    <div class="escala-card-header avancado"><span class="nivel-badge">Nível 10 — 350 e acima</span> Avançado</div>
+    <div class="escala-card-body avancado"><ul><li><strong>Espaço e Forma:</strong> Reconhecer dentre um conjunto de quadriláteros aquele que possui lados perpendiculares e com a mesma medida.</li><li><strong>Grandezas e Medidas:</strong> Converter medida de comprimento expressando decímetros e centímetros para milímetros.</li></ul></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 7 — DISTRIBUIÇÃO % LP                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="dist-lp" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">DISTRIBUIÇÃO (%) POR NÍVEIS DE PROFICIÊNCIA — LÍNGUA PORTUGUESA</div>
+      <div class="capa-subtitulo">5º Ano do Ensino Fundamental &nbsp;|&nbsp; Percentual de estudantes em cada nível SAEB por escola</div>
+    </div>
+  </div>
+  <div class="section-title">LÍNGUA PORTUGUESA — DISTRIBUIÇÃO PERCENTUAL POR NÍVEL (Níveis 0 a 9)</div>
+
+  <div class="legenda-row">
+    <div class="legenda-item"><div class="legenda-box n0" style="width:18px;height:18px;border-radius:3px;"></div><strong>N0</strong></div>
+    <div class="legenda-item"><div class="legenda-box n1" style="width:18px;height:18px;border-radius:3px;"></div><strong>N1</strong></div>
+    <div class="legenda-item"><div class="legenda-box n2" style="width:18px;height:18px;border-radius:3px;"></div><strong>N2</strong></div>
+    <div class="legenda-item"><div class="legenda-box n3" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#FFD6A5;">N3</strong></div>
+    <div class="legenda-item"><div class="legenda-box n4" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#FFD6A5;">N4 — Básico</strong></div>
+    <div class="legenda-item"><div class="legenda-box n5" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#CAFFBF;">N5 — Adequado</strong></div>
+    <div class="legenda-item"><div class="legenda-box n6" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#7be87b;">N6 — Adequado</strong></div>
+    <div class="legenda-item"><div class="legenda-box n7" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#A8D5A2;">N7 — Avançado</strong></div>
+    <div class="legenda-item"><div class="legenda-box n8" style="width:18px;height:18px;border-radius:3px;"></div><strong>N8</strong></div>
+    <div class="legenda-item"><div class="legenda-box n9" style="width:18px;height:18px;border-radius:3px;"></div><strong>N9</strong></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;">Escola</th>
+          <th>N0</th><th>N1</th><th>N2</th><th>N3</th>
+          <th class="basico">N4</th>
+          <th class="adequado">N5</th><th class="adequado">N6</th>
+          <th class="avancado">N7</th><th class="avancado">N8</th><th class="avancado">N9</th>
+          <th style="min-width:220px;">Visualização</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-dist-lp"></tbody>
+    </table>
+  </div>
+
+  <div class="analytics-box">
+    <p>A leitura das distribuições percentuais por nível em Língua Portuguesa revela que a maior concentração de estudantes se encontra entre os Níveis 3 e 5, correspondendo ao intervalo de proficiências entre 175 e 249 pontos. O Nível 4 (padrão Básico) e o Nível 5 (padrão Adequado) agregam, na maior parte das escolas, a parcela predominante dos estudantes avaliados.</p>
+    <p>O Nível 0 registra presença em várias escolas, sinalizando que há estudantes com proficiência extremamente baixa distribuídos pela rede. Os Níveis 7, 8 e 9 (padrão Avançado) apresentam percentuais reduzidos em todas as unidades, confirmando a ausência de escolas no padrão Avançado e a escassez de estudantes nas faixas superiores da escala.</p>
+    <p>As escolas <strong>EMEF Claudia Maria Gaspar Queiroz do Prado</strong>, <strong>EMEF Lamartine Delamare</strong> e <strong>EMEF Prof Joaquim Passos e Silva</strong> concentram as maiores proporções de estudantes nos Níveis 5, 6 e 7, configurando o grupo com melhor distribuição de proficiência em LP na rede.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 8 — DISTRIBUIÇÃO % MAT                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="dist-mat" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">DISTRIBUIÇÃO (%) POR NÍVEIS DE PROFICIÊNCIA — MATEMÁTICA</div>
+      <div class="capa-subtitulo">5º Ano do Ensino Fundamental &nbsp;|&nbsp; Percentual de estudantes em cada nível SAEB por escola</div>
+    </div>
+  </div>
+  <div class="section-title">MATEMÁTICA — DISTRIBUIÇÃO PERCENTUAL POR NÍVEL (Níveis 0 a 9)</div>
+
+  <div class="legenda-row">
+    <div class="legenda-item"><div class="legenda-box n0" style="width:18px;height:18px;border-radius:3px;"></div><strong>N0</strong></div>
+    <div class="legenda-item"><div class="legenda-box n1" style="width:18px;height:18px;border-radius:3px;"></div><strong>N1</strong></div>
+    <div class="legenda-item"><div class="legenda-box n2" style="width:18px;height:18px;border-radius:3px;"></div><strong>N2</strong></div>
+    <div class="legenda-item"><div class="legenda-box n3" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#FFD6A5;">N3</strong></div>
+    <div class="legenda-item"><div class="legenda-box n4" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#FFD6A5;">N4 — Básico</strong></div>
+    <div class="legenda-item"><div class="legenda-box n5" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#CAFFBF;">N5 — Adequado</strong></div>
+    <div class="legenda-item"><div class="legenda-box n6" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#7be87b;">N6 — Adequado</strong></div>
+    <div class="legenda-item"><div class="legenda-box n7" style="width:18px;height:18px;border-radius:3px;"></div><strong style="color:#A8D5A2;">N7 — Avançado</strong></div>
+    <div class="legenda-item"><div class="legenda-box n8" style="width:18px;height:18px;border-radius:3px;"></div><strong>N8</strong></div>
+    <div class="legenda-item"><div class="legenda-box n9" style="width:18px;height:18px;border-radius:3px;"></div><strong>N9</strong></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;">Escola</th>
+          <th>N0</th><th>N1</th><th>N2</th><th>N3</th>
+          <th class="basico">N4</th>
+          <th class="adequado">N5</th><th class="adequado">N6</th>
+          <th class="avancado">N7</th><th class="avancado">N8</th><th class="avancado">N9</th>
+          <th style="min-width:220px;">Visualização</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-dist-mat"></tbody>
+    </table>
+  </div>
+
+  <div class="analytics-box">
+    <p>A distribuição por níveis em Matemática evidencia maior concentração de estudantes nos Níveis 4, 5 e 6, correspondendo ao intervalo entre 200 e 274 pontos. Esse perfil é consistente com a média da rede (236,92 pontos), situando a maioria dos estudantes no patamar Básico-Adequado.</p>
+    <p>Os Níveis 7 e 8 (padrão Avançado) apresentam presença mais expressiva do que em LP em várias escolas — em especial <strong>EMEF Claudia Maria Gaspar Queiroz do Prado</strong>, <strong>EMEF Lamartine Delamare</strong>, <strong>EMEF Profa Celia Guedes</strong> e <strong>EMEF Prof Decio Moreira</strong> — que concentram percentuais relevantes de estudantes nos níveis superiores da escala. Isso indica que, em Matemática, há um grupo de estudantes em condições de superar o patamar Adequado e avançar em direção ao desempenho avançado, o que não se observa de forma equivalente em LP.</p>
+    <p>Os Níveis 0, 1 e 2 apresentam percentuais reduzidos na maioria das escolas em Matemática, reforçando o diagnóstico de que o componente matemático está mais consolidado na rede do que Língua Portuguesa para o 5º ano.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 9 — NÍVEL POR ESCOLA                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="niveis" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">CLASSIFICAÇÃO POR PADRÃO E NÍVEL DE PROFICIÊNCIA — POR ESCOLA</div>
+      <div class="capa-subtitulo">5º Ano do Ensino Fundamental &nbsp;|&nbsp; Língua Portuguesa e Matemática &nbsp;|&nbsp; Escala SAEB (0–500)</div>
+    </div>
+  </div>
+  <div class="section-title">PADRÃO DE DESEMPENHO E NÍVEL NUMÉRICO — LP e MAT (ordenado por média geral)</div>
+  <div class="legenda-row">
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFADAD;"></div><strong style="color:#FFADAD;">Abaixo do Básico</strong> <span>(&lt; 200 | Níveis 0–3)</span></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#FFD6A5;"></div><strong style="color:#FFD6A5;">Básico</strong> <span>(200–224 | Nível 4)</span></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#CAFFBF;"></div><strong style="color:#CAFFBF;">Adequado</strong> <span>(225–274 | Níveis 5–6)</span></div>
+    <div class="legenda-item"><div class="legenda-box" style="background:#A8D5A2;"></div><strong style="color:#A8D5A2;">Avançado</strong> <span>(≥ 275 | Níveis 7+)</span></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Pos.</th>
+          <th style="text-align:left;">Escola</th>
+          <th>Nota LP</th>
+          <th>LP — Padrão (Nível)</th>
+          <th>Nota MAT</th>
+          <th>MAT — Padrão (Nível)</th>
+          <th>Média Geral</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-niveis"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ABA 10 — CONCLUSÃO EXPLÍCITA                               -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="conclusao" class="tab-panel">
+  <div class="capa-header" style="padding:16px 24px;">
+    <div class="capa-header-text">
+      <div class="capa-prefeitura">Prefeitura Municipal de Jacareí &nbsp;|&nbsp; Secretaria de Educação — SME</div>
+      <div class="capa-titulo" style="font-size:20px;">CONCLUSÃO EXPLÍCITA PARA GESTORES — SAEB 2025</div>
+      <div class="capa-subtitulo">Síntese analítica dos resultados preliminares da rede municipal &nbsp;|&nbsp; 5º Ano do Ensino Fundamental</div>
+    </div>
+  </div>
+
+  <!-- BLOCO 1 — Situação geral -->
+  <div class="conclusao-bloco">
+    <div class="conclusao-bloco-header" style="background:#14254b;">SITUAÇÃO GERAL DA REDE</div>
+    <div class="conclusao-bloco-body" style="background:#14254b;">
+      <p>A rede municipal de Jacareí registrou, no SAEB 2025, <strong>média de 219,91 pontos em Língua Portuguesa</strong> — padrão <strong>Básico (Nível 4)</strong> — e <strong>média de 236,92 pontos em Matemática</strong> — padrão <strong>Adequado (Nível 5)</strong> — para o 5º ano do Ensino Fundamental. A média geral da rede, calculada pela média aritmética entre os dois componentes, foi de <strong>228,42 pontos</strong>, situada no padrão Adequado.</p>
+      <p>Das <strong>27 escolas</strong> analisadas, nenhuma atingiu o padrão Avançado em qualquer dos dois componentes. A taxa média de participação dos estudantes foi de <strong>92,2%</strong>, com 2.304 estudantes avaliados de um total de 2.504 matriculados no 5º ano — o que confere representatividade e credibilidade aos dados analisados.</p>
+      <p>O desempenho em Matemática foi consistentemente superior ao de Língua Portuguesa em <strong>todas as 27 escolas</strong>, com diferença média de <strong>17,01 pontos</strong> favorável à Matemática. Esse padrão universal reforça que o componente de leitura e escrita constitui a principal fragilidade estrutural da rede no 5º ano.</p>
+    </div>
+  </div>
+
+  <!-- BLOCO 2 — O que está BOM -->
+  <div class="conclusao-bloco">
+    <div class="conclusao-bloco-header" style="background:#18492e;">O QUE ESTÁ BOM — POTENCIALIDADES DA REDE</div>
+    <div class="conclusao-bloco-body" style="background:#18492e;">
+      <p><strong>Matemática como ponto de força da rede:</strong> 22 das 27 escolas (81,5%) atingiram o padrão Adequado em Matemática. Nenhuma escola registrou média abaixo de 200 pontos nesse componente — o menor valor foi 217,43 pontos (EMEIF Prof Adelia Pereira Braz Rossi), ainda no Básico. Esse resultado indica que as aprendizagens matemáticas estão consideravelmente mais consolidadas do que as linguísticas para o 5º ano.</p>
+      <p><strong>Grupo de escolas de alto desempenho:</strong> Cinco escolas se destacam como referências de desempenho na rede:</p>
+      <ul>
+        <li><strong>EMEF Claudia Maria Gaspar Queiroz do Prado</strong> — 1º lugar geral (251,08 pts) | LP: 238,44 Adequado | MAT: 263,71 Adequado</li>
+        <li><strong>EMEF Lamartine Delamare</strong> — 2º lugar geral (245,20 pts) | LP: 237,04 Adequado | MAT: 253,35 Adequado</li>
+        <li><strong>EMEF Prof Joaquim Passos e Silva</strong> — 3º lugar geral (244,93 pts) | LP: 236,78 Adequado | MAT: 253,07 Adequado</li>
+        <li><strong>EMEF Prof Decio Moreira</strong> — 4º lugar geral (243,95 pts) | LP: 233,04 Adequado | MAT: 254,85 Adequado</li>
+        <li><strong>EMEF Silvio Silveira Mello Filho</strong> — 5º lugar geral (241,31 pts) | LP: 230,33 Adequado | MAT: 252,28 Adequado</li>
+      </ul>
+      <p>Todas as cinco escolas do grupo de referência apresentam resultados no padrão Adequado em ambos os componentes, com médias LP acima de 227 pontos e médias MAT acima de 246 pontos.</p>
+      <p><strong>Participação expressiva:</strong> A taxa média de 92,2% de participação dos estudantes avaliados é elevada e confere consistência estatística às análises produzidas.</p>
+    </div>
+  </div>
+
+  <!-- BLOCO 3 — O que está FRÁGIL -->
+  <div class="conclusao-bloco">
+    <div class="conclusao-bloco-header" style="background:#7B1A1A;">O QUE ESTÁ FRÁGIL — PRINCIPAIS FRAGILIDADES IDENTIFICADAS</div>
+    <div class="conclusao-bloco-body" style="background:#3a0f0f;">
+      <p><strong>Língua Portuguesa como componente crítico da rede:</strong> Apenas 9 das 27 escolas (33,3%) atingiram o padrão Adequado em LP. As demais 18 unidades (66,7%) encontram-se nos padrões Básico ou Abaixo do Básico — ou seja, dois terços da rede ainda não consolidou as aprendizagens esperadas para o 5º ano em Língua Portuguesa.</p>
+      <p><strong>Escola em situação crítica em LP:</strong> O <strong>CEI Andre Franco Montoro</strong> registrou média de <strong>188,74 pontos em LP</strong>, única escola no padrão <strong>Abaixo do Básico</strong> (Nível 3) nesse componente. É a unidade de maior prioridade analítica no componente de Língua Portuguesa.</p>
+      <p><strong>Escolas com maiores fragilidades em LP (padrão Básico — Nível 4):</strong></p>
+      <ul>
+        <li><strong>EMEF Profa Maria Luiza de Souza Pinto Vasques</strong> — 203,41 pts (LP) — Básico (Nível 4)</li>
+        <li><strong>EMEF Profa Adelia Monteiro</strong> — 203,46 pts (LP) — Básico (Nível 4)</li>
+        <li><strong>EMEIF Prof Luiz Carlos Maiola Covre</strong> — 209,35 pts (LP) — Básico (Nível 4)</li>
+        <li><strong>EMEIF Prof Adelia Pereira Braz Rossi</strong> — 209,16 pts (LP) — Básico (Nível 4)</li>
+        <li><strong>EMEIF Prof Tarcisio Francisco Barbosa</strong> — 210,49 pts (LP) — Básico (Nível 4)</li>
+      </ul>
+      <p><strong>Escolas com maiores fragilidades em MAT (padrão Básico — Nível 4):</strong></p>
+      <ul>
+        <li><strong>EMEIF Prof Adelia Pereira Braz Rossi</strong> — 217,43 pts (MAT) — Básico (Nível 4)</li>
+        <li><strong>CEI Andre Franco Montoro</strong> — 217,92 pts (MAT) — Básico (Nível 4)</li>
+        <li><strong>EMEIF Prof Luiz Carlos Maiola Covre</strong> — 219,18 pts (MAT) — Básico (Nível 4)</li>
+        <li><strong>EMEF Profa Maria Luiza de Souza Pinto Vasques</strong> — 220,98 pts (MAT) — Básico (Nível 4)</li>
+        <li><strong>EMEIF Prof Tarcisio Francisco Barbosa</strong> — 221,84 pts (MAT) — Básico (Nível 4)</li>
+      </ul>
+      <p><strong>Ausência do padrão Avançado em toda a rede:</strong> Nenhuma das 27 escolas atingiu proficiência média de 275 pontos ou mais em qualquer dos dois componentes, o que significa que o padrão Avançado ainda não foi superado por nenhuma unidade da rede municipal.</p>
+      <p><strong>Desigualdade interna:</strong> A amplitude de 49,70 pontos em LP e de 46,28 pontos em Matemática entre os valores extremos das escolas revela heterogeneidade significativa dentro da rede, com unidades em situações muito distintas de desempenho.</p>
+    </div>
+  </div>
+
+  <!-- BLOCO 4 — O que está INTERMEDIÁRIO / ADEQUADO -->
+  <div class="conclusao-bloco">
+    <div class="conclusao-bloco-header" style="background:#18492e;">O QUE ESTÁ NO PATAMAR ADEQUADO — ESCOLAS EM NÍVEL ESPERADO</div>
+    <div class="conclusao-bloco-body" style="background:#18492e;">
+      <p>Situam-se no <strong>padrão Adequado em LP</strong> as seguintes 9 escolas — com médias entre 225 e 274 pontos:</p>
+      <ul>
+        <li><strong>EMEF Claudia Maria Gaspar Queiroz do Prado</strong> — 238,44 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Lamartine Delamare</strong> — 237,04 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Prof Joaquim Passos e Silva</strong> — 236,78 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Profa Celia Guedes</strong> — 234,27 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Prof Decio Moreira</strong> — 233,04 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Silvio Silveira Mello Filho</strong> — 230,33 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Profa Silvia Aparecida Rezende Barreto</strong> — 229,36 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Conceicao Aparecida Magalhaes Silva</strong> — 227,15 pts — Adequado (Nível 5)</li>
+        <li><strong>EMEF Prof Jose Eboli de Lima</strong> — 225,40 pts — Adequado (Nível 5)</li>
+      </ul>
+      <p>Em <strong>Matemática</strong>, 22 escolas situam-se no padrão Adequado, com médias entre 225 e 274 pontos. Apenas as seguintes 5 unidades ainda se encontram no padrão Básico: <strong>EMEIF Prof Adelia Pereira Braz Rossi</strong> (217,43), <strong>CEI Andre Franco Montoro</strong> (217,92), <strong>EMEIF Prof Luiz Carlos Maiola Covre</strong> (219,18), <strong>EMEF Profa Maria Luiza de Souza Pinto Vasques</strong> (220,98) e <strong>EMEIF Prof Tarcisio Francisco Barbosa</strong> (221,84).</p>
+    </div>
+  </div>
+
+  <!-- BLOCO 5 — Alinhamento com padrões esperados -->
+  <div class="conclusao-bloco">
+    <div class="conclusao-bloco-header" style="background:#14254b;">NÍVEL DE ALINHAMENTO COM OS PADRÕES ESPERADOS PELO INEP</div>
+    <div class="conclusao-bloco-body" style="background:#14254b;">
+      <p>O padrão esperado pelo INEP para o 5º ano do Ensino Fundamental é que os estudantes alcancem, ao menos, o nível <strong>Adequado</strong> da escala SAEB — correspondente a proficiências entre 225 e 274 pontos.</p>
+      <p>Em <strong>Língua Portuguesa</strong>, apenas <strong>9 das 27 escolas (33,3%)</strong> estão alinhadas com esse padrão. A distância média da rede em relação ao limiar do Adequado (225 pontos) é de <strong>5,09 pontos em LP</strong> — o que indica que a rede, em termos de média, está próxima do limiar, mas não o ultrapassou.</p>
+      <p>Em <strong>Matemática</strong>, <strong>22 das 27 escolas (81,5%)</strong> estão alinhadas com o padrão Adequado, indicando que a rede já atingiu, para a maioria das unidades, o patamar de aprendizagem esperado nesse componente.</p>
+      <p>O maior desafio de alinhamento da rede está concentrado em <strong>Língua Portuguesa</strong>, onde dois terços das escolas ainda não atingiram o padrão mínimo esperado. Em Matemática, o desafio é levar as 5 escolas que ainda estão no padrão Básico ao patamar Adequado e, na sequência, avançar toda a rede em direção ao padrão Avançado — ainda não atingido por nenhuma unidade.</p>
+      <p style="font-style:italic; color:#ffffff; font-size:11px;">Nota: Este relatório foi produzido com base nos resultados preliminares do SAEB 2025. Os dados devem ser confirmados com os resultados finais oficiais publicados pelo INEP/MEC.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- RODAPÉ GLOBAL -->
+<div class="rodape">
+  Produzido por Avaliação e Análise dos Resultados em Educação da SME &nbsp;|&nbsp;
+  Prefeitura Municipal de Jacareí — Secretaria de Educação &nbsp;|&nbsp; SAEB 2025
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT — DADOS E RENDERIZAÇÃO                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<script>
+// ── DADOS BRUTOS ──────────────────────────────────────────────────────────────
+const escolas = [
+  {nome:"EMEIF PROF LUIZ CARLOS MAIOLA COVRE",       matr:88,  pres:79,  part:89.8, lp:209.35, mat:219.18},
+  {nome:"CEI ANDRE FRANCO MONTORO",                   matr:59,  pres:54,  part:91.5, lp:188.74, mat:217.92},
+  {nome:"EMEIF PROF ADELIA PEREIRA BRAZ ROSSI",       matr:52,  pres:44,  part:84.6, lp:209.16, mat:217.43},
+  {nome:"EMEF PROF JOAQUIM PASSOS E SILVA",           matr:164, pres:158, part:96.3, lp:236.78, mat:253.07},
+  {nome:"EMEF PROFA BEATRIZ JUNQUEIRA DA SILVEIRA SANTOS", matr:159, pres:143, part:89.9, lp:220.25, mat:243.06},
+  {nome:"EMEF PROF ALUIZIO DO AMARAL CAMPOS",         matr:76,  pres:69,  part:90.8, lp:216.95, mat:227.88},
+  {nome:"EMEF BARAO DE JACAREI",                      matr:127, pres:111, part:87.4, lp:224.56, mat:239.88},
+  {nome:"EMEF PROFA CELIA GUEDES",                    matr:40,  pres:39,  part:97.5, lp:234.27, mat:247.81},
+  {nome:"EMEF PROF DECIO MOREIRA",                    matr:189, pres:173, part:91.5, lp:233.04, mat:254.85},
+  {nome:"EMEF LAMARTINE DELAMARE",                    matr:53,  pres:50,  part:94.3, lp:237.04, mat:253.35},
+  {nome:"EMEF PROFA MARIA LUIZA DE SOUZA PINTO VASQUES", matr:81, pres:65, part:80.3, lp:203.41, mat:220.98},
+  {nome:"EMEF PROFA MARIA THEREZA GANASSALI DE OLIVEIRA", matr:27, pres:22, part:81.5, lp:210.14, mat:235.69},
+  {nome:"EMEF MABITO SHOJI PRESBITERO",               matr:38,  pres:39,  part:102.6,lp:212.03, mat:235.96},
+  {nome:"EMEF SILVIO SILVEIRA MELLO FILHO",           matr:227, pres:203, part:89.4, lp:230.33, mat:252.28},
+  {nome:"EMEF CONCEICAO APARECIDA MAGALHAES SILVA",   matr:155, pres:150, part:96.8, lp:227.15, mat:246.94},
+  {nome:"EMEF PROFA DELLY GASPAR DOS SANTOS",         matr:105, pres:98,  part:93.3, lp:224.05, mat:236.06},
+  {nome:"EMEF PROFA RICARDINA DOS SANTOS DE MORAES",  matr:110, pres:107, part:97.3, lp:223.71, mat:238.69},
+  {nome:"EMEF PROF TITO MAXIMO",                      matr:107, pres:100, part:93.5, lp:212.22, mat:229.59},
+  {nome:"EMEIF PROF TARCISIO FRANCISCO BARBOSA",      matr:83,  pres:80,  part:96.4, lp:210.49, mat:221.84},
+  {nome:"EMEF PROF JOSE EBOLI DE LIMA",               matr:61,  pres:57,  part:93.4, lp:225.40, mat:230.25},
+  {nome:"EMEF PROFA ADELIA MONTEIRO",                 matr:94,  pres:85,  part:90.4, lp:203.46, mat:225.24},
+  {nome:"EMEIF MARIA AUGUSTA RIBEIRO DAHER",          matr:102, pres:96,  part:94.1, lp:220.60, mat:237.10},
+  {nome:"EMEF CLAUDIA MARIA GASPAR QUEIROZ DO PRADO", matr:88,  pres:76,  part:86.4, lp:238.44, mat:263.71},
+  {nome:"EMEF PROFA NEUSA TEODORO DE AZEVEDO",        matr:37,  pres:35,  part:94.6, lp:222.54, mat:231.91},
+  {nome:"EMEF PROFA MARIA REGINA CACHUTE",            matr:59,  pres:57,  part:96.6, lp:221.15, mat:228.45},
+  {nome:"EMEIF PROF ARISTEU JOSE TURCI",              matr:35,  pres:34,  part:97.1, lp:213.08, mat:235.02},
+  {nome:"EMEF PROFA SILVIA APARECIDA REZENDE BARRETO",matr:88,  pres:80,  part:90.9, lp:229.36, mat:252.70},
+];
+
+const distLP = [
+  [2.5,2.6,16.4,21.6,24.1,15.2,12.6,3.8,1.3,0.0],
+  [4.0,17.0,18.3,23.8,12.9,18.5,1.9,1.7,1.9,0.0],
+  [6.9,9.4,9.4,11.7,27.7,11.7,14.0,4.7,4.6,0.0],
+  [1.9,3.2,3.8,6.9,19.0,27.8,18.4,10.8,7.0,1.3],
+  [3.6,8.4,11.8,9.0,16.8,17.4,21.1,6.3,2.8,2.8],
+  [1.5,7.4,13.1,17.3,12.9,25.0,8.6,7.1,5.6,1.5],
+  [0.0,4.4,15.4,10.0,25.2,15.3,16.2,6.3,3.6,3.6],
+  [2.6,7.8,0.0,5.0,25.3,18.1,18.1,17.9,2.6,2.6],
+  [2.5,2.2,3.6,15.9,22.5,20.7,12.2,10.2,7.0,3.3],
+  [1.7,0.0,12.1,7.5,18.4,15.0,22.4,21.2,1.7,0.0],
+  [5.1,7.4,20.2,15.2,15.1,22.9,6.4,6.3,1.4,0.0],
+  [0.0,13.6,13.6,13.6,18.2,18.2,13.6,9.1,0.0,0.0],
+  [7.6,2.6,20.4,10.3,15.4,25.5,10.4,5.1,2.6,0.0],
+  [1.0,3.0,9.9,12.4,20.6,18.8,15.6,10.3,7.0,1.5],
+  [0.7,5.9,8.0,12.6,18.9,19.7,20.4,9.2,2.5,2.1],
+  [1.1,3.2,10.6,13.2,21.0,22.6,18.1,6.1,4.0,0.0],
+  [1.9,4.7,10.6,15.3,15.9,18.0,16.8,11.2,5.6,0.0],
+  [6.0,9.7,11.5,13.6,18.8,11.5,16.7,9.2,3.0,0.0],
+  [4.8,2.6,12.7,26.4,16.2,19.9,10.0,2.5,3.7,1.3],
+  [5.4,3.6,1.6,23.5,22.1,5.5,17.9,7.1,11.2,2.0],
+  [5.7,5.9,17.4,22.7,11.9,20.8,7.1,4.9,2.2,1.3],
+  [2.1,9.5,6.3,12.4,27.2,16.9,10.4,8.2,5.1,2.1],
+  [0.0,2.4,6.8,9.6,21.3,21.9,11.5,18.8,5.2,2.6],
+  [0.0,2.5,11.8,25.1,12.9,19.2,15.7,12.9,0.0,0.0],
+  [0.0,8.6,14.2,15.5,13.9,17.6,14.3,10.6,5.3,0.0],
+  [0.0,11.8,2.9,14.7,41.2,14.7,5.9,8.8,0.0,0.0],
+  [1.2,3.9,3.9,15.1,21.2,22.9,15.2,10.0,6.7,0.0],
+];
+
+const distMAT = [
+  [1.3,3.7,13.9,22.9,15.2,11.4,19.0,7.5,5.1,0.0],
+  [0.0,8.9,13.1,18.5,14.7,16.2,11.8,11.6,5.3,0.0],
+  [4.7,2.3,14.0,16.2,20.8,16.3,18.7,2.4,4.7,0.0],
+  [0.0,2.6,4.4,6.4,15.5,19.3,17.0,18.4,10.2,5.6],
+  [0.7,0.7,7.7,15.2,16.7,14.0,16.7,11.9,10.6,5.8],
+  [1.5,4.5,14.8,14.7,13.1,18.6,8.6,12.6,7.4,2.9],
+  [0.0,1.8,8.1,14.3,17.1,19.9,11.8,14.4,7.2,4.5],
+  [0.0,2.5,10.4,7.6,7.6,20.4,15.6,22.6,13.2,0.0],
+  [2.0,1.8,2.0,4.7,17.6,21.6,12.8,14.7,14.9,6.7],
+  [0.0,0.0,5.2,15.6,5.8,16.1,15.6,20.7,16.6,4.6],
+  [0.0,3.0,15.4,11.3,25.9,19.5,14.1,7.4,0.0,3.3],
+  [0.0,13.6,0.0,4.6,27.3,13.6,13.6,13.6,13.6,0.0],
+  [5.1,2.5,5.1,12.5,10.3,25.7,10.4,18.2,7.6,2.6],
+  [0.5,0.5,2.6,10.0,14.5,23.7,18.0,12.5,10.5,6.3],
+  [0.0,2.0,4.6,9.3,21.0,14.3,18.7,16.0,8.0,4.1],
+  [0.9,3.2,4.4,13.4,17.5,17.8,24.0,12.7,5.0,1.1],
+  [1.0,1.9,6.7,12.3,17.0,20.8,15.1,11.2,12.1,1.8],
+  [4.1,2.0,13.0,7.8,17.9,17.3,14.6,13.1,8.0,2.2],
+  [2.5,7.5,8.8,19.0,11.1,24.9,8.7,11.4,2.4,3.8],
+  [0.0,5.5,7.5,14.4,25.2,10.5,14.6,15.0,3.7,3.6],
+  [3.3,1.1,10.3,12.3,13.3,27.1,21.4,8.5,2.6,0.0],
+  [2.0,1.1,10.4,6.3,19.0,20.8,21.9,7.5,8.2,2.1],
+  [0.0,1.4,2.9,10.8,7.3,18.5,17.2,14.6,12.9,13.1],
+  [0.0,2.5,2.5,24.7,18.8,20.6,7.3,15.3,4.9,3.5],
+  [1.8,1.7,13.9,10.4,22.8,17.6,14.2,8.7,3.4,3.6],
+  [0.0,2.9,2.9,11.8,20.6,29.4,20.6,5.9,2.9,2.9],
+  [1.3,1.2,4.0,6.4,13.2,23.1,19.1,15.2,10.0,5.2],
+];
+
+// ── FUNÇÕES AUXILIARES ────────────────────────────────────────────────────────
+function padrao(m) {
+  if (m < 200) return {cls:'abaixo', txt:'Abaixo do Básico'};
+  if (m < 225) return {cls:'basico', txt:'Básico'};
+  if (m < 275) return {cls:'adequado', txt:'Adequado'};
+  return {cls:'avancado', txt:'Avançado'};
+}
+function nivelLP(m) {
+  if (m<125) return 0; if (m<150) return 1; if (m<175) return 2;
+  if (m<200) return 3; if (m<225) return 4; if (m<250) return 5;
+  if (m<275) return 6; if (m<300) return 7; if (m<325) return 8;
+  return 9;
+}
+function nivelMAT(m) {
+  if (m<125) return 0; if (m<150) return 1; if (m<175) return 2;
+  if (m<200) return 3; if (m<225) return 4; if (m<250) return 5;
+  if (m<275) return 6; if (m<300) return 7; if (m<325) return 8;
+  if (m<350) return 9; return 10;
+}
+
+function fmt(n) { return n.toFixed(2).replace('.',','); }
+
+// Barras de ranking
+function barraRanking(nota, mediaRef, minVal, maxVal, cls) {
+  const range = maxVal - minVal + 10;
+  const pct = ((nota - minVal + 5) / range * 100).toFixed(1);
+  const mediaPct = ((mediaRef - minVal + 5) / range * 100).toFixed(1);
+  return `<div class="bar-wrap">
+    <div class="bar-bg">
+      <div class="bar-fill ${cls}" style="width:${pct}%">${fmt(nota)}</div>
+      <div class="bar-media-line" style="left:${mediaPct}%">
+        <div class="bar-media-label">Média ${fmt(mediaRef)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Barra de distribuição por nível
+const nClasses = ['n0','n1','n2','n3','n4','n5','n6','n7','n8','n9'];
+function barraNiveis(dist) {
+  return '<div class="nivel-bar-wrap">' +
+    dist.map((v,i) => v>0 ?
+      `<div class="nivel-seg ${nClasses[i]}" style="width:${v}%" title="N${i}: ${v.toFixed(1)}%">${v>=4?v.toFixed(0)+'%':''}</div>`
+      : ''
+    ).join('') + '</div>';
+}
+
+// ── RENDERIZAÇÃO ──────────────────────────────────────────────────────────────
+const dados = escolas.map((e,i) => ({
+  ...e,
+  media: (e.lp + e.mat) / 2,
+  nlp: nivelLP(e.lp),
+  nmat: nivelMAT(e.mat),
+  dlp: distLP[i],
+  dmat: distMAT[i],
+}));
+
+// TABELA COMPARATIVO LP x MAT
+const comp = [...dados].sort((a,b)=>b.media-a.media);
+document.getElementById('tbl-comp').innerHTML = comp.map((d,i)=>{
+  const diff = d.mat - d.lp;
+  const cls = diff > 0 ? 'adequado' : 'abaixo';
+  return `<tr>
+    <td class="rank">${i+1}</td>
+    <td class="txt-left">${d.nome}</td>
+    <td class="nota">${fmt(d.lp)}</td>
+    <td class="nota">${fmt(d.mat)}</td>
+    <td class="${cls}">${diff>0?'+':''}${fmt(diff)}</td>
+  </tr>`;
+}).join('') +
+`<tr class="linha-media-rede">
+  <td colspan="2"><strong>Média da Rede</strong></td>
+  <td>219,91</td><td>236,92</td><td>+17,01</td>
+</tr>`;
+
+// RANKING GERAL
+const rgeral = [...dados].sort((a,b)=>b.media-a.media);
+const minG=Math.min(...dados.map(d=>d.media)), maxG=Math.max(...dados.map(d=>d.media));
+document.getElementById('tbl-geral').innerHTML = rgeral.map((d,i)=>{
+  const p = padrao(d.media);
+  const barra = barraRanking(d.media, 228.42, minG, maxG, p.cls);
+  return `<tr>
+    <td class="rank">${i+1}</td>
+    <td class="txt-left">${d.nome}</td>
+    <td>${d.matr}</td><td>${d.pres}</td>
+    <td>${d.part.toFixed(1)}%</td>
+    <td class="nota">${fmt(d.lp)}</td>
+    <td class="nota">${fmt(d.mat)}</td>
+    <td class="nota">${fmt(d.media)}</td>
+    <td class="${p.cls}">${p.txt}</td>
+    <td>${barra}</td>
+  </tr>`;
+}).join('') +
+`<tr class="linha-media-rede">
+  <td colspan="7"><strong>Média da Rede</strong></td>
+  <td>228,42</td><td colspan="2">Adequado</td>
+</tr>`;
+
+// RANKING LP
+const rlp = [...dados].sort((a,b)=>b.lp-a.lp);
+const minLP=Math.min(...dados.map(d=>d.lp)), maxLP=Math.max(...dados.map(d=>d.lp));
+document.getElementById('tbl-lp').innerHTML = rlp.map((d,i)=>{
+  const p = padrao(d.lp);
+  return `<tr>
+    <td class="rank">${i+1}</td>
+    <td class="txt-left">${d.nome}</td>
+    <td>${d.matr}</td><td>${d.pres}</td>
+    <td>${d.part.toFixed(1)}%</td>
+    <td class="nota">${fmt(d.lp)}</td>
+    <td class="${p.cls}">${p.txt} (Nível ${d.nlp})</td>
+    <td>${barraRanking(d.lp, 219.91, minLP, maxLP, p.cls)}</td>
+  </tr>`;
+}).join('') +
+`<tr class="linha-media-rede">
+  <td colspan="5"><strong>Média LP da Rede</strong></td>
+  <td>219,91</td><td colspan="2">Básico (Nível 4)</td>
+</tr>`;
+
+// RANKING MAT
+const rmat = [...dados].sort((a,b)=>b.mat-a.mat);
+const minMAT=Math.min(...dados.map(d=>d.mat)), maxMAT=Math.max(...dados.map(d=>d.mat));
+document.getElementById('tbl-mat').innerHTML = rmat.map((d,i)=>{
+  const p = padrao(d.mat);
+  return `<tr>
+    <td class="rank">${i+1}</td>
+    <td class="txt-left">${d.nome}</td>
+    <td>${d.matr}</td><td>${d.pres}</td>
+    <td>${d.part.toFixed(1)}%</td>
+    <td class="nota">${fmt(d.mat)}</td>
+    <td class="${p.cls}">${p.txt} (Nível ${d.nmat})</td>
+    <td>${barraRanking(d.mat, 236.92, minMAT, maxMAT, p.cls)}</td>
+  </tr>`;
+}).join('') +
+`<tr class="linha-media-rede">
+  <td colspan="5"><strong>Média MAT da Rede</strong></td>
+  <td>236,92</td><td colspan="2">Adequado (Nível 5)</td>
+</tr>`;
+
+// DISTRIBUIÇÃO LP
+document.getElementById('tbl-dist-lp').innerHTML = dados.map(d=>{
+  const vals = d.dlp.map(v=>`<td>${v>0?v.toFixed(1)+'%':'—'}</td>`).join('');
+  return `<tr><td class="txt-left">${d.nome}</td>${vals}<td>${barraNiveis(d.dlp)}</td></tr>`;
+}).join('');
+
+// DISTRIBUIÇÃO MAT
+document.getElementById('tbl-dist-mat').innerHTML = dados.map(d=>{
+  const vals = d.dmat.map(v=>`<td>${v>0?v.toFixed(1)+'%':'—'}</td>`).join('');
+  return `<tr><td class="txt-left">${d.nome}</td>${vals}<td>${barraNiveis(d.dmat)}</td></tr>`;
+}).join('');
+
+// NÍVEIS POR ESCOLA
+const rniv = [...dados].sort((a,b)=>b.media-a.media);
+document.getElementById('tbl-niveis').innerHTML = rniv.map((d,i)=>{
+  const plp = padrao(d.lp), pmat = padrao(d.mat);
+  return `<tr>
+    <td class="rank">${i+1}</td>
+    <td class="txt-left">${d.nome}</td>
+    <td class="nota">${fmt(d.lp)}</td>
+    <td class="${plp.cls}">${plp.txt} (Nível ${d.nlp})</td>
+    <td class="nota">${fmt(d.mat)}</td>
+    <td class="${pmat.cls}">${pmat.txt} (Nível ${d.nmat})</td>
+    <td class="nota">${fmt(d.media)}</td>
+  </tr>`;
+}).join('');
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
